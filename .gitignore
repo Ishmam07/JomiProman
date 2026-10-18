@@ -1,0 +1,39 @@
+# secrets & local data
+.env
+*.key
+backend/data/
+*.db
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# node
+node_modules/
+frontend/dist/
+
+# IDEs / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Private signing keys
+/backend/data/*.key
+
+# Dependencies and generated files
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+frontend/dist/
+*.py[cod]

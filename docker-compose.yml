@@ -1,0 +1,82 @@
+# JomiProman: MySQL + Redis + FastAPI + React (nginx).
+#   ./setup-linux.sh
+# Then open http://localhost:3100  (API docs: http://localhost:8101/api/docs)
+
+name: jomiproman-new
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # lets the app user create the append-only ledger triggers while binary logging is on
+      - --log-bin-trust-function-creators=1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-jomiproman}
+      MYSQL_USER: ${MYSQL_USER:-jomi}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-jomi_pass}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-13306}:3306" # optional host DB access; localhost only
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-16379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-jomi}:${MYSQL_PASSWORD:-jomi_pass}@mysql:3306/${MYSQL_DATABASE:-jomiproman}?charset=utf8mb4
+      REDIS_URL: redis://redis:6379/0
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3100}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3100,http://localhost:5173}
+      REGISTRAR_KEY: ${REGISTRAR_KEY:-demo-registrar}
+      ADMIN_KEY: ${ADMIN_KEY:-demo-admin-change-me}
+      SIGNING_KEY_PATH: /app/data/ed25519.key
+      AUTO_SEED: ${AUTO_SEED:-true}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+    ports:
+      - "127.0.0.1:${API_PORT:-8101}:8000"
+    volumes:
+      - backend_data:/app/data # keeps the Ed25519 signing key across restarts
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3100}:80"
+
+volumes:
+  mysql_data:
+  redis_data:
+  backend_data:

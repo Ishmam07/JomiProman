@@ -1,0 +1,24 @@
+{
+  "name": "jomiproman-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "test": "node --test src/app.test.mjs"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans-bengali": "^5.1.0",
+    "@fontsource/noto-serif-bengali": "^5.1.0",
+    "html5-qrcode": "^2.3.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
