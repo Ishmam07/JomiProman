@@ -62,7 +62,7 @@ After pulling/copying newer project code, double-click `SETUP-Windows.bat` to re
 
 ## Troubleshooting
 
-**`docker` not found / cannot connect to Docker daemon**: install/start Docker Desktop, ensure Linux containers/WSL 2 is enabled, and rerun the setup.
+**`docker` not found / cannot connect to Docker daemon**: the setup script tries to offer Docker Desktop installation through `winget`. If installation needs a restart, reboot, launch Docker Desktop, wait for the engine, then rerun `SETUP-Windows.bat`. If `winget` is missing, install Docker Desktop manually from the official site.
 
 **A port is already in use**: edit the matching port in `.env` (`WEB_PORT`, `API_PORT`, `MYSQL_PORT`, or `REDIS_PORT`), then run `SETUP-Windows.bat` again. The defaults are chosen to avoid common conflicts.
 

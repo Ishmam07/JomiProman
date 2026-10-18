@@ -3,8 +3,41 @@ set -Eeuo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "Docker is not installed or is not on PATH. Install Docker Engine with the Compose plugin first." >&2
-  exit 1
+  echo "Docker is not installed or is not on PATH."
+  if [[ ! -r /etc/os-release ]] || ! grep -qiE '^(ID|ID_LIKE)=.*(ubuntu|debian|linuxmint|pop)' /etc/os-release; then
+    echo "Automatic prerequisite installation is supported only for Ubuntu/Debian-based Linux."
+    echo "Install Docker Engine + the Compose plugin using https://docs.docker.com/engine/install/ then rerun ./setup-linux.sh." >&2
+    exit 1
+  fi
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "curl is required to download Docker's official installer. Install curl, then rerun setup." >&2
+    exit 1
+  fi
+  read -r -p "Install Docker Engine now using Docker's official convenience installer? It needs sudo and changes system packages. [Y/n] " install_docker
+  if [[ -n "${install_docker}" && ! "${install_docker}" =~ ^([yY]|[yY][eE][sS])$ ]]; then
+    echo "Docker was not installed. Install Docker Engine + Compose plugin, then rerun ./setup-linux.sh." >&2
+    exit 1
+  fi
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "sudo is required to install Docker Engine. Install Docker manually or enable sudo, then rerun setup." >&2
+    exit 1
+  fi
+  installer="$(mktemp)"
+  trap 'rm -f "${installer:-}"' EXIT
+  if ! curl -fsSL https://get.docker.com -o "$installer"; then
+    echo "Could not download Docker's installer. Check internet connectivity and try again." >&2
+    exit 1
+  fi
+  sudo sh "$installer"
+  rm -f "$installer"
+  trap - EXIT
+  if command -v systemctl >/dev/null 2>&1; then
+    sudo systemctl enable --now docker || true
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "Docker installation finished but the CLI is not on PATH. Reopen the terminal and rerun ./setup-linux.sh." >&2
+    exit 1
+  fi
 fi
 
 if [[ ! -f .env ]]; then

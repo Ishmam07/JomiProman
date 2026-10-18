@@ -33,10 +33,12 @@ Built for the **LandTech Innovation Hackathon 2026** (DIU), track *Digital Land 
 
 ## Quick start (Docker)
 
-You need Docker with Docker Compose. This project supports Linux and Windows 10/11 through Docker.
+This project supports Linux and Windows 10/11 through Docker Compose.
 
-- **Windows:** read [`WINDOWS-QUICKSTART.md`](WINDOWS-QUICKSTART.md), then double-click `SETUP-Windows.bat`. Everyday start/stop/status shortcuts are included.
-- **Linux:** run `chmod +x setup-linux.sh` and `./setup-linux.sh`.
+- **Windows:** clone/download the repo, then double-click `SETUP-Windows.bat`. If Docker Desktop is missing, the script offers to install it through `winget`; Windows may still require administrator approval and/or restart to enable WSL 2. Everyday start/stop/status shortcuts are included.
+- **Linux:** run `chmod +x setup-linux.sh` and `./setup-linux.sh`. On Ubuntu/Debian-based systems, if Docker is missing, the script offers to install it with Docker's official convenience installer; this needs `sudo`. Other distributions should follow Docker's official installation guide first.
+
+GitHub deliberately does not auto-execute code immediately after `git clone`. The intended simple workflow is: install Git once, clone the repo, then run one setup script; the script offers to bootstrap Docker if needed, downloads/builds the app containers and starts the app.
 
 The Windows and Linux setup scripts create `.env` from `.env.example` if needed, validate the Compose config, build/start the stack, then wait for the web and API health endpoints.
 
@@ -59,6 +61,41 @@ Reset only the demo data: `make reset-demo`.
 
 ---
 
+
+## Clone and run (for a new developer)
+
+### Windows 10/11
+
+1. Install Git if needed, then run in Command Prompt or PowerShell:
+
+   ```powershell
+   git clone https://github.com/Ishmam07/JomiProman.git
+   cd JomiProman
+   .\SETUP-Windows.bat
+   ```
+
+2. If Docker Desktop is missing, the setup script offers to install it with `winget`. Approve the installer if prompted. Docker Desktop/WSL2 may require a one-time Windows restart; after reboot, start Docker Desktop and run `SETUP-Windows.bat` again.
+3. The script downloads/builds the containers, creates private local configuration if absent, waits for health checks, then opens the website. No separate Python, Node.js, MySQL or Redis install is needed.
+
+### Ubuntu/Debian Linux
+
+```bash
+git clone https://github.com/Ishmam07/JomiProman.git
+cd JomiProman
+chmod +x setup-linux.sh
+./setup-linux.sh
+```
+
+If Docker is missing on supported Ubuntu/Debian-based distributions, the script offers to install Docker Engine using Docker's official convenience installer (requires `sudo` and internet). Other distributions should install Docker Engine + Compose plugin following Docker's official docs first.
+
+### Notes
+
+- GitHub deliberately does not automatically execute code on clone. Users must explicitly run the setup script once.
+- `.env` is local and ignored by Git. The Groq key is optional; without it, AI-related UI falls back where supported.
+- The app uses fictional demo records; it is not connected to official government land data.
+- Start/stop/status/log shortcuts and troubleshooting are in `WINDOWS-QUICKSTART.md`.
+
+---
 
 ## Admin control center
 
