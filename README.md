@@ -33,14 +33,12 @@ Built for the **LandTech Innovation Hackathon 2026** (DIU), track *Digital Land 
 
 ## Quick start (Docker)
 
-You need Docker with the Compose plugin.
+You need Docker with Docker Compose. This project supports Linux and Windows 10/11 through Docker.
 
-```bash
-chmod +x setup-linux.sh
-./setup-linux.sh
-```
+- **Windows:** read [`WINDOWS-QUICKSTART.md`](WINDOWS-QUICKSTART.md), then double-click `SETUP-Windows.bat`. Everyday start/stop/status shortcuts are included.
+- **Linux:** run `chmod +x setup-linux.sh` and `./setup-linux.sh`.
 
-The setup script creates `.env` from `.env.example` if needed, validates the Compose config, builds/starts the stack (using `sudo` if Docker socket permissions require it), then waits for the web and API health endpoints.
+The Windows and Linux setup scripts create `.env` from `.env.example` if needed, validate the Compose config, build/start the stack, then wait for the web and API health endpoints.
 
 | What | Where |
 |---|---|
@@ -64,7 +62,7 @@ Reset only the demo data: `make reset-demo`.
 
 ## Admin control center
 
-Open `http://localhost:3100/admin` and enter the separate `ADMIN_KEY` stored in the root `.env` file. `setup-linux.sh` generates a random local admin key the first time it creates `.env`. The browser keeps it in this tab's session storage only. The admin key is distinct from `REGISTRAR_KEY`.
+Open `http://localhost:3100/admin` and enter the separate `ADMIN_KEY` stored in the root `.env` file. The Windows and Linux setup scripts generate a random local admin key if `.env` has the placeholder value. The browser keeps it in this tab's session storage only. The admin key is distinct from `REGISTRAR_KEY`.
 
 The admin console is read-only for legal deed data and includes:
 - Operational metrics: plots, deed totals, blocked/risk counts, pending/completed mutation and activity counts.
@@ -184,7 +182,7 @@ The AI **never decides** a verdict. Green / amber / red come from deterministic 
 
 Safeguards: untrusted text is wrapped in tags and the model is told to ignore instructions inside it; output is validated; answers are cached; endpoints are rate-limited; **if there is no key or Groq is unreachable, every feature falls back to a deterministic template / regex**, so the demo never breaks. The UI shows whether an answer came from `AI · <model>` or from the automatic fallback.
 
-Setup: put your key in `.env` (`GROQ_API_KEY=…`) and restart the backend. The model is `GROQ_MODEL` (default `llama-3.3-70b-versatile`). Only dummy data is ever sent to Groq.
+Setup: put your key in `.env` (`GROQ_API_KEY=…`) and restart the backend. The model is `GROQ_MODEL` (default `openai/gpt-oss-120b`). Only dummy data is ever sent to Groq.
 
 ---
 
@@ -258,7 +256,7 @@ All settings are environment variables (see `.env.example`).
 | Variable | Default | Notes |
 |---|---|---|
 | `GROQ_API_KEY` | empty | empty = fallback mode |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | any Groq chat model id |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | any Groq chat model id |
 | `REGISTRAR_KEY` | `demo-registrar` | with `ENVIRONMENT=production` the default is refused at start-up |
 | `PUBLIC_BASE_URL` | `http://localhost:3100` | written into QR codes; set to your live URL when deployed |
 | `DATABASE_URL` / `REDIS_URL` | set by compose | local-run values are in `.env.example` |
