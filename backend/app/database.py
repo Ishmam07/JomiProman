@@ -13,9 +13,20 @@ from app.config import get_settings
 log = logging.getLogger(__name__)
 settings = get_settings()
 
+def _sqlalchemy_database_url(url: str) -> str:
+    """Normalize Railway's mysql:// URL to the installed PyMySQL driver.
+
+    Local Compose already supplies mysql+pymysql://. Railway's MYSQL_URL uses
+    mysql://, which otherwise makes SQLAlchemy look for its default MySQL driver.
+    """
+    if url.startswith("mysql://"):
+        return "mysql+pymysql://" + url[len("mysql://"):]
+    return url
+
+
 _connect_args = {"check_same_thread": False} if settings.is_sqlite else {}
 engine = create_engine(
-    settings.database_url,
+    _sqlalchemy_database_url(settings.database_url),
     pool_pre_ping=True,
     connect_args=_connect_args,
 )
